@@ -6,31 +6,53 @@ import { GraphQLServer } from 'graphql-yoga';
 // Type Definitions (schema)
 const typeDefs = `
   type Query {
-    title: String!
-    price: Float!
-    releaseYear: Int!
-    rating: Float!
-    inStock: Boolean!
+    greeting(name: String age: Int profession: String): String!
+    me: User!
+    post: Post!
   }
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  age: Int
+}
+
+type Post {
+  id: ID!
+  title: String!
+  body: String!
+  published: Boolean!
+}
 `;
 
 // Resolvers
 const resolvers = {
   Query: {
-    title() {
-      return 'Macbook Pro';
+    greeting(parent, args, ctx, info) {
+      console.log(args);
+
+      if (args.name && args.age && args.profession) {
+        return `Hello my name is ${args.name}, I am ${args.age}, and I work as a ${args.profession}.`;
+      } else {
+        return 'Sorry no name';
+      }
     },
-    price() {
-      return 2300.0;
+    me() {
+      return {
+        id: '1234098',
+        name: 'Kevin',
+        email: 'kevin@gmail.com',
+        age: '35'
+      };
     },
-    releaseYear() {
-      return 2020;
-    },
-    rating() {
-      return 88.9;
-    },
-    inStock() {
-      return true;
+    post() {
+      return {
+        id: '1234098',
+        title: 'Beginner GraphQL',
+        body: 'First body of the post',
+        published: true
+      };
     }
   }
 };
