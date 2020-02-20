@@ -3,10 +3,53 @@ import { GraphQLServer } from 'graphql-yoga';
 // 5 Scalar Types in GraphQl - String, Boolean, Int, Float, ID
 // NonScalar type would be objects or arrays
 
+// Demo user data
+const users = [
+  {
+    id: '1',
+    name: 'John',
+    email: 'john@gmail.com',
+    age: 18
+  },
+  {
+    id: '2',
+    name: 'Chris',
+    email: 'chris@gmail.com'
+  },
+  {
+    id: '3',
+    name: 'Sarah',
+    email: 'sarah@gmail.com',
+    age: 25
+  }
+];
+
+const posts = [
+  {
+    id: '1',
+    title: 'Title 1',
+    body: 'This is the first post body',
+    published: false
+  },
+  {
+    id: '2',
+    title: 'Title 2',
+    body: 'This is the second post body',
+    published: true
+  },
+  {
+    id: '3',
+    title: 'Title 3',
+    body: 'This is the third post body',
+    published: false
+  }
+];
+
 // Type Definitions (schema)
 const typeDefs = `
   type Query {
-    greeting(name: String age: Int profession: String): String!
+    users(query: String): [User!]!
+    posts(query: String): [Post!]!
     me: User!
     post: Post!
   }
@@ -15,7 +58,7 @@ type User {
   id: ID!
   name: String!
   email: String!
-  age: Int
+  published: Int
 }
 
 type Post {
@@ -29,14 +72,31 @@ type Post {
 // Resolvers
 const resolvers = {
   Query: {
-    greeting(parent, args, ctx, info) {
-      console.log(args);
-
-      if (args.name && args.age && args.profession) {
-        return `Hello my name is ${args.name}, I am ${args.age}, and I work as a ${args.profession}.`;
-      } else {
-        return 'Sorry no name';
+    users(parent, args, ctx, info) {
+      if (!args.query) {
+        return users;
       }
+
+      return users.filter(user => {
+        return user.name.toLowerCase().includes(args.query.toLowerCase());
+      });
+    },
+    posts(parent, args, ctx, info) {
+      if (!args.query) {
+        return posts;
+      }
+
+      return posts.filter(post => {
+        const isTitleMatch = post.title
+          .toLowerCase()
+          .includes(args.query.toLowerCase());
+
+        const isBodyMatch = post.body
+          .toLowerCase()
+          .includes(args.query.toLowerCase());
+
+        return isTitleMatch || isBodyMatch;
+      });
     },
     me() {
       return {
